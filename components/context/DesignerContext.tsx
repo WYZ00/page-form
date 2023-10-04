@@ -6,6 +6,7 @@ import { FormElementIntance } from "../FormElements";
 type DesignerContextType = {
   elements: FormElementIntance[];
   addElement: (index: number, element: FormElementIntance) => void;
+  removeElement: (id: string) => void;
 };
 
 export const DesignerContext = createContext<DesignerContextType | null>(null);
@@ -25,11 +26,16 @@ export default function DesignerContextProvider({
     });
   };
 
+  const removeElement = (id: string) => {
+    setElements((prev) => prev.filter((element) => element.id !== id));
+  };
+
   return (
     <DesignerContext.Provider
       value={{
         elements,
         addElement,
+        removeElement,
       }}>
       {children}
     </DesignerContext.Provider>
