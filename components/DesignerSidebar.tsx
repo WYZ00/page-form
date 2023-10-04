@@ -1,3 +1,7 @@
+import { FormElements } from "./FormElements";
+import SidebarBtnElement from "./SidebarBtnElement";
+
+
 function DesignerSidebar() {
   return (
     <aside
@@ -5,6 +9,7 @@ function DesignerSidebar() {
         border-l-2 border-muted p-4 bg-background overflow-y-auto h-full
     ">
       Elements
+      <SidebarBtnElement formElement={FormElements.TextField} />
     </aside>
   );
 }
