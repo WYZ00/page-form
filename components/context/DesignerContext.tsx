@@ -11,6 +11,7 @@ import { FormElementIntance } from "../FormElements";
 
 type DesignerContextType = {
   elements: FormElementIntance[];
+  setElements: Dispatch<SetStateAction<FormElementIntance[]>>;
   addElement: (index: number, element: FormElementIntance) => void;
   removeElement: (id: string) => void;
 
@@ -56,6 +57,7 @@ export default function DesignerContextProvider({
     <DesignerContext.Provider
       value={{
         elements,
+        setElements,
         addElement,
         removeElement,
         selectedElement,
