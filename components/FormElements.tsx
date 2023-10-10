@@ -14,7 +14,9 @@ export type FormElement = {
   designerComponent: React.FC<{
     elementInstance: FormElementIntance;
   }>;
-  formComponent: React.FC;
+  formComponent: React.FC<{
+    elementInstance: FormElementIntance;
+  }>;
   propertiesComponent: React.FC<{
     elementInstance: FormElementIntance;
   }>;

@@ -53,7 +53,7 @@ export const TextFieldFormElement: FormElement = {
     label: "Text Field",
   },
   designerComponent: DesignerComponent,
-  formComponent: () => <div>FOrm component</div>,
+  formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
 };
 
@@ -62,6 +62,29 @@ type CustomInstance = FormElementIntance & {
 };
 
 type propertiesFormSchema = z.infer<typeof propertiesSchema>;
+
+function FormComponent({
+  elementInstance,
+}: {
+  elementInstance: FormElementIntance;
+}) {
+  const element = elementInstance as CustomInstance;
+
+  const { helperText, label, placeHolder, required } = element.extraAttributes;
+
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label>
+        {label}
+        {required && "*"}
+      </Label>
+      <Input placeholder={placeHolder} />
+      {helperText && (
+        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+      )}
+    </div>
+  );
+}
 
 function PropertiesComponent({
   elementInstance,
