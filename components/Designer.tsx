@@ -21,7 +21,13 @@ import {
 } from "./FormElements";
 
 function Designer() {
-  const { elements, addElement, removeElement } = useDesigner();
+  const {
+    elements,
+    addElement,
+    removeElement,
+    selectedElement,
+    setSelectedElement,
+  } = useDesigner();
 
   const droppable = useDroppable({
     id: "designer-drop-area",
@@ -124,7 +130,11 @@ function Designer() {
 
   return (
     <div className="flex w-full h-full">
-      <div className="p-4 w-full">
+      <div
+        className="p-4 w-full"
+        onClick={() => {
+          if (selectedElement) setSelectedElement(null);
+        }}>
         <div
           ref={droppable.setNodeRef}
           className={cn(
@@ -157,7 +167,7 @@ function Designer() {
 }
 
 function DesignerElementWrapper({ element }: { element: FormElementIntance }) {
-  const { removeElement } = useDesigner();
+  const { removeElement, selectedElement, setSelectedElement } = useDesigner();
 
   const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
   const topHalf = useDroppable({
@@ -201,6 +211,10 @@ function DesignerElementWrapper({ element }: { element: FormElementIntance }) {
       }}
       onMouseLeave={() => {
         setMouseIsOver(false);
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        setSelectedElement(element);
       }}>
       <div
         ref={topHalf.setNodeRef}
