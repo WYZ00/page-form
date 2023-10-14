@@ -14,11 +14,7 @@ import useDesigner from "./hooks/useDesigner";
 import { idGenerator } from "@/lib/idGenerator";
 import { Button } from "./ui/button";
 import { BiSolidTrash } from "react-icons/bi";
-import {
-  ElemenstsType,
-  FormElementIntance,
-  FormElements,
-} from "./FormElements";
+import { ElementsType, FormElementIntance, FormElements } from "./FormElements";
 
 function Designer() {
   const {
@@ -51,7 +47,7 @@ function Designer() {
       // First scenario
       if (droppingSidebarBtnOverDesignerDropArea) {
         const type = active.data?.current?.type;
-        const newElement = FormElements[type as ElemenstsType].construct(
+        const newElement = FormElements[type as ElementsType].construct(
           idGenerator()
         );
 
@@ -75,7 +71,7 @@ function Designer() {
       // Second scenario
       if (droppingSidebarBtnOverDesignerElement) {
         const type = active.data?.current?.type;
-        const newElement = FormElements[type as ElemenstsType].construct(
+        const newElement = FormElements[type as ElementsType].construct(
           idGenerator()
         );
 

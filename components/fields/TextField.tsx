@@ -2,16 +2,17 @@
 
 import { MdTextFields } from "react-icons/md";
 import {
-  ElemenstsType,
+  ElementsType,
   FormElement,
   FormElementIntance,
+  SubmitFunction,
 } from "../FormElements";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useDesigner from "../hooks/useDesigner";
 
 import {
@@ -24,14 +25,15 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Switch } from "../ui/switch";
+import { cn } from "@/lib/utils";
 
-const type: ElemenstsType = "TextField";
+const type: ElementsType = "TextField";
 
 const extraAttributes = {
   label: "Text field",
   helperText: "Helper text",
   required: false,
-  placeHolder: "values here...",
+  placeHolder: "Value here...",
 };
 
 const propertiesSchema = z.object({
@@ -55,30 +57,38 @@ export const TextFieldFormElement: FormElement = {
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
+
+  validate: (
+    formElement: FormElementIntance,
+    currentValue: string
+  ): boolean => {
+    const element = formElement as CustomInstance;
+    if (element.extraAttributes.required) {
+      return currentValue.length > 0;
+    }
+
+    return true;
+  },
 };
 
 type CustomInstance = FormElementIntance & {
   extraAttributes: typeof extraAttributes;
 };
 
-type propertiesFormSchema = z.infer<typeof propertiesSchema>;
-
-function FormComponent({
+function DesignerComponent({
   elementInstance,
 }: {
   elementInstance: FormElementIntance;
 }) {
   const element = elementInstance as CustomInstance;
-
-  const { helperText, label, placeHolder, required } = element.extraAttributes;
-
+  const { label, required, placeHolder, helperText } = element.extraAttributes;
   return (
     <div className="flex flex-col gap-2 w-full">
       <Label>
         {label}
         {required && "*"}
       </Label>
-      <Input placeholder={placeHolder} />
+      <Input readOnly disabled placeholder={placeHolder} />
       {helperText && (
         <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
@@ -86,6 +96,61 @@ function FormComponent({
   );
 }
 
+function FormComponent({
+  elementInstance,
+  submitValue,
+  isInvalid,
+  defaultValue,
+  
+}: {
+  elementInstance: FormElementIntance;
+  submitValue?: SubmitFunction;
+  isInvalid?: boolean;
+  defaultValue?: string;
+}) {
+  const element = elementInstance as CustomInstance;
+
+  const [value, setValue] = useState(defaultValue || "");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(isInvalid === true);
+  }, [isInvalid]);
+
+  const { label, required, placeHolder, helperText } = element.extraAttributes;
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <Label className={cn(error && "text-red-500")}>
+        {label}
+        {required && "*"}
+      </Label>
+      <Input
+        className={cn(error && "border-red-500")}
+        placeholder={placeHolder}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={(e) => {
+          if (!submitValue) return;
+          const valid = TextFieldFormElement.validate(element, e.target.value);
+          setError(!valid);
+          if (!valid) return;
+          submitValue(element.id, e.target.value);
+        }}
+        value={value}
+      />
+      {helperText && (
+        <p
+          className={cn(
+            "text-muted-foreground text-[0.8rem]",
+            error && "text-red-500"
+          )}>
+          {helperText}
+        </p>
+      )}
+    </div>
+  );
+}
+
+type propertiesFormSchemaType = z.infer<typeof propertiesSchema>;
 function PropertiesComponent({
   elementInstance,
 }: {
@@ -93,8 +158,7 @@ function PropertiesComponent({
 }) {
   const element = elementInstance as CustomInstance;
   const { updateElement } = useDesigner();
-
-  const form = useForm<propertiesFormSchema>({
+  const form = useForm<propertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
     defaultValues: {
@@ -109,9 +173,8 @@ function PropertiesComponent({
     form.reset(element.extraAttributes);
   }, [element, form]);
 
-  function applyChanges(values: propertiesFormSchema) {
+  function applyChanges(values: propertiesFormSchemaType) {
     const { label, helperText, placeHolder, required } = values;
-
     updateElement(element.id, {
       ...element,
       extraAttributes: {
@@ -153,7 +216,6 @@ function PropertiesComponent({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="placeHolder"
@@ -168,12 +230,11 @@ function PropertiesComponent({
                   }}
                 />
               </FormControl>
-              <FormDescription>The placeholder of the field</FormDescription>
+              <FormDescription>The placeholder of the field.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="helperText"
@@ -189,14 +250,13 @@ function PropertiesComponent({
                 />
               </FormControl>
               <FormDescription>
-                The Helper text of the field <br />
+                The helper text of the field. <br />
                 It will be displayed below the field.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="required"
@@ -204,9 +264,8 @@ function PropertiesComponent({
             <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
                 <FormLabel>Required</FormLabel>
-
                 <FormDescription>
-                  The Helper text of the field <br />
+                  The helper text of the field. <br />
                   It will be displayed below the field.
                 </FormDescription>
               </div>
@@ -222,28 +281,5 @@ function PropertiesComponent({
         />
       </form>
     </Form>
-  );
-}
-
-function DesignerComponent({
-  elementInstance,
-}: {
-  elementInstance: FormElementIntance;
-}) {
-  const element = elementInstance as CustomInstance;
-
-  const { helperText, label, placeHolder, required } = element.extraAttributes;
-
-  return (
-    <div className="flex flex-col gap-2 w-full">
-      <Label>
-        {label}
-        {required && "*"}
-      </Label>
-      <Input readOnly disabled placeholder={placeHolder} />
-      {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
-      )}
-    </div>
   );
 }
