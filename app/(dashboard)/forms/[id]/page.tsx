@@ -194,7 +194,5 @@ async function SubmissionTable({ id }: { id: number }) {
 function RowCell({ type, value }: { type: ElementsType; value: string }) {
   let node: ReactNode = value;
 
-  switch(type){}
-
   return <TableCell>{node}</TableCell>;
 }
